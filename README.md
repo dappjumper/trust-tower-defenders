@@ -1,4 +1,3 @@
-
 # Trust Tower Defenders
 A tower defense game using Vue.js, websockets and NodeJS with Express
 
@@ -7,9 +6,7 @@ A tower defense game using Vue.js, websockets and NodeJS with Express
 
 - Pick 1 of the below  
 `npm run setup && npm run develop` Full install then start development server (vuejs)
-
 `npm run setup && npm run serve` Full install then start server  
-
 `npm run setup && npm run build` Full install but does not start server  
 
 - Go to localhost:3000 and enjoy
