@@ -4,7 +4,6 @@
       <span>Trust Tower Defense</span>
     </header>
     <main>
-      <img src="./assets/logo.png" alt="Trust Tower Defenders">
       <router-view></router-view>
     </main>
   </div>
