@@ -1,0 +1,20 @@
+{
+  "name": "trust-tower-defenders",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "cd app && npm run build && cd ..",
+    "serve": "npm run build && npm run start",
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "DappJump.io",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "pixi.js": "^5.2.1",
+    "socket.io": "^2.3.0",
+    "vue": "^2.6.11"
+  }
+}
