@@ -28,6 +28,9 @@ The port to serve the app on
 The port to accept websocket connections on
 *Default: 3030*
 
+- **MONGODB_URI**
+The Mongodb URI on which to store user credentials and user data
+
 ## How to use
 
 #### Setup (required)
