@@ -30,6 +30,10 @@ The port to accept websocket connections on
 - Note: Only run if you did not setup using the installation instructions
 `npm run setup`
 
+#### Development
+- Note: You must have run setup beforehand
+`npm run develop`
+
 #### Build
 - Note: You must have run setup beforehand
 `npm run build`
