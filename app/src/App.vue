@@ -1,10 +1,10 @@
 <template>
   <div id="app">
     <header>
-      <span>Vue.js PWA</span>
+      <span>Trust Tower Defenders</span>
     </header>
     <main>
-      <img src="./assets/logo.png" alt="Vue.js PWA">
+      <img src="./assets/logo.png" alt="Trust Tower Defenders">
       <router-view></router-view>
     </main>
   </div>

@@ -6,12 +6,13 @@ A tower defense game using Vue.js, websockets and NodeJS with Express
 - Clone this repository to your machine
 
 - Pick 1 of the below  
-`npm run setup && npm run serve` Full install then start server   
+`npm run setup && npm run develop` Full install then start development server (vuejs)
+`npm run setup && npm run serve` Full install then start server
 `npm run setup && npm run build` Full install but does not start server
 
 - Go to localhost:3000 and enjoy
 
-For active development, please use `npm run serve` to propagate changes and start the server
+For active development, please use `npm run develop` if you have run setup before and navigate to localhost:8080
 
 ## Environment variables
 These are not required to set, but may be helpful if using hosts such as Heroku that have dynamic ports.
