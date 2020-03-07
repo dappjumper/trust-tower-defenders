@@ -1,6 +1,17 @@
 <template>
   <div class="hello" v-if="!ready">
     <p v-html="status"></p>
+    <div v-if="hasMetamask">
+      <div v-if="!hasEnabledMetamask">
+        <button v-on:click="enableWeb3">Enable</button>
+      </div>
+      <div v-if="hasEnabledMetamask">
+        <pre>{{address}}</pre>
+      </div>
+    </div>
+    <div v-if="!hasMetamask">
+      <button>Get metamask</button>
+    </div>
   </div>
 </template>
 
@@ -11,6 +22,9 @@ export default {
     return {
       canvas: "",
       status: "",
+      hasMetamask: false,
+      address: "",
+      hasEnabledMetamask: false,
       ready: false
     }
   },
@@ -23,6 +37,21 @@ export default {
       this.ready = true;
       this.status = status || "Success!"
     },
+    enableWeb3 () {
+      wuf.connectWeb3()
+      .then(()=>{
+        this.connectToServer(address)
+      })
+      .catch(()=>{
+        console.log("Did not enable")
+      })
+    },
+    connectToServer (address) {
+      this.hasEnabledMetamask = true;
+      this.hasMetamask = true
+      this.address = address
+      this.status = "Connecting to login server..."
+    },
     hasToken (token) {
       this.isNotReady("Validating login...")
     },
@@ -30,8 +59,20 @@ export default {
       this.isNotReady("Not logged in")
       let endpoint = wuf.host+wuf.url
       wuf.getWeb3()
-      .then(()=>{this.breakingError(""+wuf.account.selectedAddress+" found. <br/><br/>End of demo.")})
-      .catch(()=>{this.breakingError("Web3 not found")})
+      .then(()=>{
+        this.hasMetamask = true;
+        wuf.hasVisibleAccount()
+        .then((address)=>{
+          this.connectToServer(address)
+        })
+        .catch(this.enableWeb3State)
+      })
+      .catch(()=>{
+        this.isNotReady("Please install web3")
+      })
+    },
+    enableWeb3State () {
+      this.isNotReady("Please enable your metamask")
     },
     loginFlow (url) {
       this.isNotReady(url)
