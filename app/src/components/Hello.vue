@@ -12,6 +12,9 @@ export default {
     return {
       msg: 'Trust Tower Defenders'
     }
+  },
+  mounted () {
+    console.log({PIXI, WebSocket})
   }
 }
 </script>

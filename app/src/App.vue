@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <header>
-      <span>Trust Tower Defenders</span>
+      <span>Trust Tower Defense</span>
     </header>
     <main>
       <img src="./assets/logo.png" alt="Trust Tower Defenders">
