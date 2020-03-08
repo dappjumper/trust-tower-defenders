@@ -1,16 +1,45 @@
 <template>
   <div class="hello" v-if="!ready">
-    <p v-html="status"></p>
-    <div v-if="hasMetamask">
-      <div v-if="!hasEnabledMetamask">
-        <button v-on:click="enableWeb3">Enable</button>
-      </div>
-      <div v-if="hasEnabledMetamask">
-        <pre>{{address}}</pre>
-      </div>
+    <div v-if="state == 'loading'">
+      <pre>{{status}}</pre>
     </div>
-    <div v-if="!hasMetamask">
-      <button>Get metamask</button>
+    <div v-if="state == 'errorSign'">
+      <pre>{{status}}</pre>
+      <button v-on:click="signWeb3">
+        <a>
+          Retry
+        </a>
+      </button>
+    </div>
+    <div v-if="state == 'loggedIn'">
+      Logged in
+    </div>
+    <div v-if="state == 'noWeb3'">
+      <p>Please download metamask</p>
+      <button>
+        <a target="_blank" href="https://metamask.io">
+          Download
+        </a>
+      </button>
+    </div>
+    <div v-if="state == 'tryWeb3'">
+      Trying web3...
+    </div>
+    <div v-if="state == 'signWeb3' && !status">
+      <pre>Selected account: {{user.address}}</pre>
+      <button>
+        <a v-on:click="signWeb3">
+          Connect
+        </a>
+      </button>
+    </div>
+    <div v-if="state == 'signWeb3' && status">
+        <pre v-html="status"></pre>
+        <button v-on:click="signWeb3">
+          <a>
+            Retry
+          </a>
+        </button>
     </div>
   </div>
 </template>
@@ -20,81 +49,91 @@ export default {
   name: 'tdd',
   data () {
     return {
-      canvas: "",
+      user: {
+        address: "",
+        signed: false
+      },
       status: "",
-      hasMetamask: false,
-      address: "",
-      hasEnabledMetamask: false,
+      state: "",
       ready: false
-    }
-  },
-  methods: {
-    isNotReady (error) {
-      this.ready = false;
-      this.status = error || "Something went wrong"
-    },
-    isReady (status) {
-      this.ready = true;
-      this.status = status || "Success!"
-    },
-    enableWeb3 () {
-      wuf.connectWeb3()
-      .then(()=>{
-        this.connectToServer(address)
-      })
-      .catch(()=>{
-        console.log("Did not enable")
-      })
-    },
-    connectToServer (address) {
-      this.hasEnabledMetamask = true;
-      this.hasMetamask = true
-      this.address = address
-      this.status = "Connecting to login server..."
-    },
-    hasToken (token) {
-      this.isNotReady("Validating login...")
-    },
-    notLoggedIn () {
-      this.isNotReady("Not logged in")
-      let endpoint = wuf.host+wuf.url
-      wuf.getWeb3()
-      .then(()=>{
-        this.hasMetamask = true;
-        wuf.hasVisibleAccount()
-        .then((address)=>{
-          this.connectToServer(address)
-        })
-        .catch(this.enableWeb3State)
-      })
-      .catch(()=>{
-        this.isNotReady("Please install web3")
-      })
-    },
-    enableWeb3State () {
-      this.isNotReady("Please enable your metamask")
-    },
-    loginFlow (url) {
-      this.isNotReady(url)
-    },
-    breakingError (error) {
-      this.isNotReady(error || "A breaking error occured")
     }
   },
   mounted () {
     //Check for module dependencies
-    if(!window.web3) return this.isNotReady("Failed to load login dependency")
-    if(!window.wuf) return this.isNotReady("Failed to load login scripts")
-    if(!window.PIXI) return this.isNotReady("Failed to load graphics renderer")
+    if(!window.web3)  return this.setError("Failed to load web3", "noWeb3");
+    if(!window.wuf)   return this.setError("Failed to load user system");
+    if(!window.PIXI)  return this.setError("Failed to load graphics");
 
     //If in vuejs dev mode, change port
     //Todo: dynamic
     if(window.wuf.host.indexOf(':8080')) window.wuf.host = "http://localhost:3000"
-
     //Ready to check for user
     wuf.checkJWT()
-    .then(()=>{console.log("JWT found")})
-    .catch(this.notLoggedIn)
+      .then(this.tryLogin)
+      .catch(this.tryWeb3)
+  },
+  methods: {
+    setError (string, newState) {
+      this.status = string || "An error occured"
+      this.state = newState || 'error';
+    },
+    setStatus (string) {
+      this.status = string || ""
+    },
+    tryLogin () {
+      this.state = "tryLogin"
+    },
+    tryWeb3 () {
+      this.state = "tryWeb3"
+      wuf.getWeb3()
+        .then(()=>{
+          let account = wuf.hasVisibleAccount()
+          if(account) {
+            this.user.address = account;
+            this.state = "signWeb3"
+          } else {
+            this.state = "enableWeb3"
+          }
+        })
+        .catch(()=>{
+          this.setError("Please download metamask","noWeb3")
+        })
+    },
+    signWeb3 () {
+      let address = this.user.address;
+      this.state = "loading"
+      this.status = "Communicating..."
+      wuf.api('user/' + address)
+        .then((response)=>{
+          this.status = "Please please confirm your signature in the popup"
+          this.state = "signWeb3"
+          wuf.sign(address, response.challenge)
+            .then((signature)=>{
+              if(this.user.signed == true) return;
+              this.user.signed = true;
+              this.state = "loading"
+              this.status = "Communicating..."
+              wuf.api('user/'+address+'/getjwt', address, {
+                signature: signature
+              })
+                .then((response)=>{
+                  console.log(response)
+                })
+                .catch((error)=>{
+                  console.log(error)
+                })
+            })
+            .catch(()=>{
+              if(this.user.signed == true) return;
+              this.status = "Signature failed"
+              this.state = "signWeb3"
+            })
+        })
+        .catch(()=>{
+          this.status = "Communication failed..."
+          this.state = "errorSign"
+        })
+    }
   }
 }
 </script>
@@ -115,7 +154,38 @@ li {
   margin: 0 10px;
 }
 
+main {
+  color:#fafafa;
+}
+
+button {
+  background:none;
+  padding: none;
+  outline:none; border:none;
+  border: 2px solid #fafafa;
+  border-radius:8px;
+  transition:background .1s;
+  cursor:pointer;
+}
+button a {
+  transition:color .1s;
+  text-decoration: none;
+  padding:16px 20px;
+  display:inline-block;
+  box-sizing:border-box;
+  font-weight:600;
+}
+
+button:hover {
+  background:#fafafa;
+}
+
+button:hover a {
+  color:#333333;
+  font-weight:600;
+}
+
 a {
-  color: #35495E;
+  color: #fafafa;
 }
 </style>
