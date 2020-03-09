@@ -11,6 +11,14 @@
         </a>
       </button>
     </div>
+    <div v-if="state == 'errorLogin'">
+      <pre>{{status}}</pre>
+      <button v-on:click="tryWeb3">
+        <a>
+          Retry
+        </a>
+      </button>
+    </div>
     <div v-if="state == 'loggedIn'">
       Logged in
     </div>
@@ -30,6 +38,14 @@
       <button>
         <a v-on:click="signWeb3">
           Connect
+        </a>
+      </button>
+    </div>
+    <div v-if="state == 'connectWeb3'">
+      <pre>Please enable your metamask</pre>
+      <button>
+        <a v-on:click="connectWeb3">
+          Enable
         </a>
       </button>
     </div>
@@ -68,9 +84,10 @@ export default {
     //Todo: dynamic
     if(window.wuf.host.indexOf(':8080')) window.wuf.host = "http://localhost:3000"
     //Ready to check for user
-    wuf.checkJWT()
-      .then(this.tryLogin)
-      .catch(this.tryWeb3)
+
+    let token = wuf.getJWT()
+    if(token) return this.tryLogin(token);
+    this.tryWeb3();
   },
   methods: {
     setError (string, newState) {
@@ -80,11 +97,29 @@ export default {
     setStatus (string) {
       this.status = string || ""
     },
-    tryLogin () {
-      this.state = "tryLogin"
+    tryLogin (json) {
+      let jsonObj = json;
+      this.state = "loading"
+      this.status = "Logging in as "+json.address+"..."
+      wuf.api('user/'+json.address+'/profile')
+        .then((user)=>{
+          if(user.error) {
+            this.state = "errorLogin"
+            return this.status = user.error;
+          }
+          this.state = "dashboard"
+          this.status = ""
+          this.ready = true;
+        })
+        .catch(()=>{
+          this.state = "errorLogin"
+          this.status = "Login failed"
+          wuf.setJWT(null)
+        })
     },
     tryWeb3 () {
       this.state = "tryWeb3"
+      this.status = ""
       wuf.getWeb3()
         .then(()=>{
           let account = wuf.hasVisibleAccount()
@@ -92,12 +127,22 @@ export default {
             this.user.address = account;
             this.state = "signWeb3"
           } else {
-            this.state = "enableWeb3"
+            this.state = "connectWeb3"
           }
         })
         .catch(()=>{
           this.setError("Please download metamask","noWeb3")
         })
+    },
+    connectWeb3 () {
+      wuf.connectWeb3()
+      .then(()=>{
+        this.state = "signWeb3"
+        this.user.address = wuf.hasVisibleAccount()
+        if(!this.user.address) return reject()
+        this.signWeb3()
+      })
+      .catch(()=>{})
     },
     signWeb3 () {
       let address = this.user.address;
@@ -117,10 +162,16 @@ export default {
                 signature: signature
               })
                 .then((response)=>{
-                  console.log(response)
+                  if(response.error) {
+                    this.status = "Failed to get token"
+                    return this.state = 'error';
+                  } else {
+                    wuf.setJWT(response);
+                    this.tryLogin(response);
+                  }
                 })
                 .catch((error)=>{
-                  console.log(error)
+
                 })
             })
             .catch(()=>{
@@ -132,6 +183,7 @@ export default {
         .catch(()=>{
           this.status = "Communication failed..."
           this.state = "errorSign"
+          wuf.setJWT(null)
         })
     }
   }
