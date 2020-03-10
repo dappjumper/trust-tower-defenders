@@ -1,61 +1,41 @@
 <template>
-  <div class="hello" v-if="!ready">
-    <div v-if="state == 'loading'">
-      <pre>{{status}}</pre>
-    </div>
-    <div v-if="state == 'errorSign'">
-      <pre>{{status}}</pre>
-      <button v-on:click="signWeb3">
-        <a>
-          Retry
-        </a>
+  <div>
+    <div v-if="ready">
+      <pre>{{JSON.stringify(user)}}</pre>
+      <button v-on:click="logout">
+        <a>Log out</a>
       </button>
     </div>
-    <div v-if="state == 'errorLogin'">
-      <pre>{{status}}</pre>
-      <button v-on:click="tryWeb3">
-        <a>
-          Retry
-        </a>
-      </button>
-    </div>
-    <div v-if="state == 'loggedIn'">
-      Logged in
-    </div>
-    <div v-if="state == 'noWeb3'">
-      <p>Please download metamask</p>
-      <button>
-        <a target="_blank" href="https://metamask.io">
-          Download
-        </a>
-      </button>
-    </div>
-    <div v-if="state == 'tryWeb3'">
-      Trying web3...
-    </div>
-    <div v-if="state == 'signWeb3' && !status">
-      <pre>Selected account: {{user.address}}</pre>
-      <button>
-        <a v-on:click="signWeb3">
-          Connect
-        </a>
-      </button>
-    </div>
-    <div v-if="state == 'connectWeb3'">
-      <pre>Please enable your metamask</pre>
-      <button>
-        <a v-on:click="connectWeb3">
-          Enable
-        </a>
-      </button>
-    </div>
-    <div v-if="state == 'signWeb3' && status">
-        <pre v-html="status"></pre>
-        <button v-on:click="signWeb3">
+    <div class="hello" v-if="!ready">
+      <div v-if="state == 'loading'">
+        <pre>{{status}}</pre>
+      </div>
+      <div v-if="state == 'enableWeb3'">
+        <pre>Please enable your Metamask</pre>
+        <button v-on:click="enableWeb3">
           <a>
-            Retry
+            Enable
           </a>
         </button>
+      </div>
+      <div v-if="state == 'signWeb3'">
+        <pre>Access as {{user.address}}</pre>
+        <button v-on:click="signWeb3">
+          <a>
+            Access
+          </a>
+        </button>
+      </div>
+      <div v-if="state == 'hasNoWeb3'">
+        <pre>
+          Please download Metamask
+        </pre>
+        <button>
+          <a href="https://metamask.io">
+            Download
+          </a>
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -65,10 +45,7 @@ export default {
   name: 'tdd',
   data () {
     return {
-      user: {
-        address: "",
-        signed: false
-      },
+      user: false,
       status: "",
       state: "",
       ready: false
@@ -87,9 +64,93 @@ export default {
 
     let token = wuf.getJWT()
     if(token) return this.tryLogin(token);
-    this.tryWeb3();
+    this.tryWeb3()
   },
   methods: {
+    logout () {
+      this.user = false;
+      this.ready = false;
+      wuf.setJWT(null)
+      this.tryWeb3()
+    },
+    tryLogin () {
+      let user = wuf.getJWT()
+      wuf.api('user/' + user.address + '/profile')
+        .then((profile)=>{
+          this.user = profile.user;
+          this.ready = true;
+        })
+        .catch(()=>{
+          this.user = false;
+          this.ready = false;
+        })
+    },
+    enableWeb3 () {
+      wuf.connectWeb3().then(()=>{
+
+      }).catch(()=>{
+
+      })
+    },
+    signWeb3 () {
+      let address = this.user.address;
+      console.log("Trying sign")
+      wuf.api('user/' + address)
+        .then((response)=>{
+          wuf.sign(address, response.challenge)
+            .then((signature)=>{
+              wuf.api('user/'+address+'/getjwt', address, {
+                signature: signature
+              })
+                .then((response)=>{
+                  if(response.error) {
+                    //Could not get token
+                  } else {
+                    //Successfully got token
+                    wuf.setJWT(response)
+                    this.tryLogin()
+                  }
+                })
+                .catch((error)=>{
+                  //API Failed
+                })
+            })
+            .catch(()=>{
+              //Signature failed
+            })
+        })
+        .catch(()=>{
+          //API Failed
+        })
+    },
+    tryWeb3 () {
+      wuf.getWeb3()
+        .then(()=>{
+          this.state = "enableWeb3"
+          this.getAddressLoop();
+        })
+        .catch(()=>{
+          this.state = "hasNoWeb3"
+        })
+    },
+    getAddressLoop () {
+      if(this.ready) return;
+      console.log("Loopering")
+      if(wuf.hasVisibleAccount()) {
+        this.state = 'signWeb3'
+        this.user = {address:wuf.hasVisibleAccount()}
+      } else {
+        this.state = "enableWeb3"
+      }
+      setTimeout(this.getAddressLoop, 500)
+    }
+    /*logout () {
+      this.status = ""
+      this.ready = false;
+      this.user = false;
+      wuf.setJWT(null)
+      window.location.reload()
+    },
     setError (string, newState) {
       this.status = string || "An error occured"
       this.state = newState || 'error';
@@ -110,6 +171,7 @@ export default {
           this.state = "dashboard"
           this.status = ""
           this.ready = true;
+          this.user = user;
         })
         .catch(()=>{
           this.state = "errorLogin"
@@ -127,7 +189,9 @@ export default {
             this.user.address = account;
             this.state = "signWeb3"
           } else {
-            this.state = "connectWeb3"
+            this.state = "loading"
+            this.status = "Loading..."
+            setTimeout(this.tryWeb3, 500)
           }
         })
         .catch(()=>{
@@ -185,7 +249,7 @@ export default {
           this.state = "errorSign"
           wuf.setJWT(null)
         })
-    }
+    }*/
   }
 }
 </script>
