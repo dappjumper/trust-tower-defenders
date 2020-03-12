@@ -97,7 +97,7 @@ wuf.api = (endpoint, publicKey, payload, success, failure)=>{
 
 
         let load = (payload ? JSON.stringify(payload) : null)
-
+        alert("It's a POST goddamnit"+load)
         xhttp.open("POST", wuf.host+wuf.url+endpoint, true);
         if(load) xhttp.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
 
