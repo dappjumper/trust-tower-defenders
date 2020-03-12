@@ -58,14 +58,22 @@ wuf.connectWeb3 = ()=>{
 	})
 }
 
-wuf.sign = (address, message) => {
-    return new Promise((resolve, reject)=>{
+wuf.sign = (address, message, success, failure) => {
+    if(success && failure) {
         let hashedMessage = web3.fromUtf8(message)
         web3.personal.sign(hashedMessage, address, function (err, result) {
-            if (err) return reject()
-            resolve(result)
-          })
-    })
+          if (err) return failure()
+          return success(result)
+        })
+    } else {
+        return new Promise((resolve, reject)=>{
+            let hashedMessage = web3.fromUtf8(message)
+            web3.personal.sign(hashedMessage, address, function (err, result) {
+                if (err) return reject()
+                resolve(result)
+              })
+        })
+    }
 }
 
 wuf.apicall = {
@@ -79,7 +87,6 @@ wuf.api = (endpoint, publicKey, payload)=>{
 		let xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function () {
 		    if (this.readyState == 4 && this.status == 200) {
-                alert(JSON.stringify(this.responseText))
 		        resolve(JSON.parse(this.responseText))
 		    } else {
 		        if (this.readyState == 4 && this.status != 200) {
@@ -89,18 +96,18 @@ wuf.api = (endpoint, publicKey, payload)=>{
 		    }
 		};
 
-		try {
-            let jwt = wuf.getJWT();
-            if(jwt.token) xhttp.setRequestHeader('Authorization', "Bearer "+wuf.getJWT().token);
-        } catch(e) {
-            
-        }
 
 		let load = (payload ? JSON.stringify(payload) : null)
 
 		xhttp.open((load ? 'POST' : 'GET'), wuf.host+wuf.url+endpoint, true);
         if(load) xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-        alert("Sending "+load)
+
+		try {
+            let jwt = wuf.getJWT();
+            if(jwt.token) xhttp.setRequestHeader('Authorization', "Bearer "+wuf.getJWT().token);
+        } catch(e) {
+            console.log(e)
+        }
         xhttp.send(load);
 	})
 }
