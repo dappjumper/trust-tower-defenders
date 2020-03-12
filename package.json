@@ -12,6 +12,9 @@
     "start": "npm run serve",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "engines": {
+    "node": "12.16.x"
+  },
   "author": "DappJump.io",
   "license": "ISC",
   "dependencies": {
