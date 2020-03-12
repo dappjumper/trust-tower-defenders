@@ -61,7 +61,7 @@ wuf.connectWeb3 = ()=>{
 wuf.sign = (address, message) => {
     return new Promise((resolve, reject)=>{
         let hashedMessage = web3.fromUtf8(message)
-        web3.personal.sign(hashedMessage, address, function (err, result) {
+        web3.personal.sign(hashedMessage, address, '', function (err, result) {
             if (err) return reject()
             resolve(result)
           })
