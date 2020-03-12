@@ -4,10 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "setup": "npm install && cd app && npm install && cd ..",
-    "build": "cd app && npm run build && cd ..",
     "develop": "npm-run-all --parallel start develop-app",
-    "develop-app": "cd app && node build/dev-server.js",
     "serve": "npm run build && npm run start",
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
