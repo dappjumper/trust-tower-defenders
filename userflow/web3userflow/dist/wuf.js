@@ -98,7 +98,7 @@ wuf.api = (endpoint, publicKey, payload, success, failure)=>{
 
         let load = (payload ? JSON.stringify(payload) : null)
 
-        xhttp.open((typeof load == 'string' ? 'POST' : 'GET'), wuf.host+wuf.url+endpoint, true);
+        xhttp.open("POST", wuf.host+wuf.url+endpoint, true);
         if(load) xhttp.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
 
         try {
