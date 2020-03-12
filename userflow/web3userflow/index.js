@@ -71,6 +71,7 @@ const routes = {
 		protected: false,
 		function: function(req,res){
 			let userAddress = req.params.address;
+			console.log("Let's see here...",req.params,req.body)
 			if(typeof userAddress == 'string' && (userAddress||'').length == 42) {
 				User.model.findOne({address:userAddress}, "address nonce", function(err, user){
 					if(!err && user) {
