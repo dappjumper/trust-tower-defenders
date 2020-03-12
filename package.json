@@ -8,6 +8,7 @@
     "serve": "npm run build && npm run start",
     "postinstall": "",
     "start": "node index.js",
+    "buildstart": "cd app && npm run build && cd .. && npm run start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "engines": {
