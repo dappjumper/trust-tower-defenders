@@ -5,6 +5,7 @@
 <script>
 export default {
   name: 'GameWindow',
+  props: ["address"],
   data () {
     return {
 
@@ -24,6 +25,10 @@ export default {
     bunny.x = app.screen.width / 2;
     bunny.y = app.screen.height / 2;
 
+    let base = this.address.substr(0,6)
+
+    bunny.tint = parseInt(base) + 0xfafafa;
+    console.log(bunny.tint)
 
     app.stage.addChild(bunny);
 
@@ -33,7 +38,7 @@ export default {
       let x = object.scale.x;
       let y = object.scale.y;
       let currentDate = new Date().getTime()
-      let dx = Math.abs(Math.sin(startTime - currentDate / 1000)) / 2 + 0.5
+      let dx = 1//Math.abs(Math.sin(startTime - currentDate / 1000)) / 2 + 0.5
       let dy = Math.abs(Math.sin(startTime - currentDate / 1000)) / 2 + 0.5
       object.scale.set(dx,dy)
     }

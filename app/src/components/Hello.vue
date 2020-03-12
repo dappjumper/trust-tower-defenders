@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <GameWindow v-if="ready" />
+  <div id="appcontent">
+    <GameWindow v-bind:address="user.address" v-if="ready" />
     <div v-if="ready" class="inheader">
       <span>{{user.address}}</span>
       <button v-on:click="logout">
@@ -58,7 +58,7 @@ export default {
   },
   mounted () {
     //Check for module dependencies
-    if(!window.web3)  return this.setError("Failed to load web3", "hasNoWeb3");
+    if(!window.Web3)  return this.setError("Failed to load web3", "hasNoWeb3");
     if(!window.wuf)   return this.setError("Failed to load user system");
     if(!window.PIXI)  return this.setError("Failed to load graphics");
 
@@ -149,6 +149,7 @@ export default {
         this.state = 'signWeb3'
         this.user = {address:wuf.hasVisibleAccount()}
       } else {
+        if(!web3) return this.state = "hasNoWeb3"
         this.state = "enableWeb3"
       }
       setTimeout(this.getAddressLoop, 500)
@@ -167,6 +168,14 @@ h1, h2 {
 ul {
   list-style-type: none;
   padding: 0;
+}
+
+.hello {
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  margin-top:-200px;
 }
 
 li {
