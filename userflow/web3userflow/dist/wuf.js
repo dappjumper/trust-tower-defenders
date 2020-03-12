@@ -88,17 +88,18 @@ wuf.api = (endpoint, publicKey, payload)=>{
 		    }
 		};
 		xhttp.open((payload ? 'POST' : 'GET'), wuf.host+wuf.url+endpoint, true);
-		if(publicKey) xhttp.setRequestHeader('publicKey', publicKey);
+
 		try {
             let jwt = wuf.getJWT();
             if(jwt.token) xhttp.setRequestHeader('Authorization', "Bearer "+wuf.getJWT().token);
         } catch(e) {
             
         }
-        //if (typeof wuf.getJWT() == 'string') xhttp.setRequestHeader('jwtToken', JSON.parse(wuf.getJWT()).token);
+
 		let load = (payload ? JSON.stringify(payload) : null)
-        if(load) alert("Load to send: "+load)
+
         if(load) xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        alert("Sending "+load)
         xhttp.send(load);
 	})
 }
