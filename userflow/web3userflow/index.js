@@ -71,7 +71,6 @@ const routes = {
 		protected: false,
 		function: function(req,res){
 			let userAddress = req.params.address;
-			console.log("Let's see here...",req.params,req.body)
 			if(typeof userAddress == 'string' && (userAddress||'').length == 42) {
 				User.model.findOne({address:userAddress}, "address nonce", function(err, user){
 					if(!err && user) {
@@ -106,6 +105,7 @@ const routes = {
 		function: function(req,res){
 			if(!req.params.address) return res.send({error:"No address specified"})
 			if(!req.body.signature) return res.send({error:"No signature attached"})
+			console.log("Let's see here...",req.params,req.body)
 			User.model.findOne({address:req.params.address}, "address nonce", (err, user)=>{
 				let challenge = ""
 				if(err) {
