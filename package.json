@@ -10,7 +10,7 @@
     "develop-app": "cd app && node build/dev-server.js",
     "serve": "npm run build && npm run start",
     "postinstall": "",
-    "start": "npm run serve",
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "engines": {
