@@ -58,22 +58,14 @@ wuf.connectWeb3 = ()=>{
 	})
 }
 
-wuf.sign = (address, message, success, failure) => {
-    if(success && failure) {
+wuf.sign = (address, message) => {
+    return new Promise((resolve, reject)=>{
         let hashedMessage = web3.fromUtf8(message)
         web3.personal.sign(hashedMessage, address, function (err, result) {
-          if (err) return failure()
-          return success(result)
-        })
-    } else {
-        return new Promise((resolve, reject)=>{
-            let hashedMessage = web3.fromUtf8(message)
-            web3.personal.sign(hashedMessage, address, function (err, result) {
-                if (err) return reject()
-                resolve(result)
-              })
-        })
-    }
+            if (err) return reject()
+            resolve(result)
+          })
+    })
 }
 
 wuf.apicall = {
@@ -82,62 +74,32 @@ wuf.apicall = {
 	}
 }
 
-wuf.api = (endpoint, publicKey, payload, success, failure)=>{
-    if(success) {
-        let xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function () {
-            if (this.readyState == 4 && this.status == 200) {
-                alert(this.responseText)
-                success(JSON.parse(this.responseText))
-            } else {
-                if (this.readyState == 4 && this.status != 200) {
-                    failure()
-                }
-            }
-        };
-
-
-        let load = (payload ? JSON.stringify(payload) : null)
-        alert("It's a POST goddamnit"+load)
-        xhttp.open("POST", wuf.host+wuf.url+endpoint, true);
-        if(load) xhttp.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
-
-        try {
+wuf.api = (endpoint, publicKey, payload)=>{
+	return new Promise((resolve, reject)=>{
+		let xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function () {
+		    if (this.readyState == 4 && this.status == 200) {
+		        resolve(JSON.parse(this.responseText))
+		    } else {
+		        if (this.readyState == 4 && this.status != 200) {
+		            console.log(this)
+                    reject()
+		        }
+		    }
+		};
+		xhttp.open((payload ? 'POST' : 'GET'), wuf.host+wuf.url+endpoint, true);
+		if(publicKey) xhttp.setRequestHeader('publicKey', publicKey);
+		try {
             let jwt = wuf.getJWT();
             if(jwt.token) xhttp.setRequestHeader('Authorization', "Bearer "+wuf.getJWT().token);
         } catch(e) {
-            console.log(e)
+            
         }
+        //if (typeof wuf.getJWT() == 'string') xhttp.setRequestHeader('jwtToken', JSON.parse(wuf.getJWT()).token);
+		let load = (payload ? JSON.stringify(payload) : null)
+        if(load) xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
         xhttp.send(load);
-    } else {
-    	return new Promise((resolve, reject)=>{
-    		let xhttp = new XMLHttpRequest();
-    		xhttp.onreadystatechange = function () {
-    		    if (this.readyState == 4 && this.status == 200) {
-    		        resolve(JSON.parse(this.responseText))
-    		    } else {
-    		        if (this.readyState == 4 && this.status != 200) {
-    		            console.log(this)
-                        reject()
-    		        }
-    		    }
-    		};
-
-
-    		let load = (payload ? JSON.stringify(payload) : null)
-
-    		xhttp.open((typeof load == 'string' ? 'POST' : 'GET'), wuf.host+wuf.url+endpoint, true);
-            if(load) xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-
-    		try {
-                let jwt = wuf.getJWT();
-                if(jwt.token) xhttp.setRequestHeader('Authorization', "Bearer "+wuf.getJWT().token);
-            } catch(e) {
-                console.log(e)
-            }
-            xhttp.send(load);
-    	})
-    }
+	})
 }
 
 wuf.VueJS = (selector, onload)=>{
