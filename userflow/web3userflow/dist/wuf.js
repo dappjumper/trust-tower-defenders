@@ -79,6 +79,7 @@ wuf.api = (endpoint, publicKey, payload)=>{
 		let xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function () {
 		    if (this.readyState == 4 && this.status == 200) {
+                alert(JSON.stringify(this.responseText))
 		        resolve(JSON.parse(this.responseText))
 		    } else {
 		        if (this.readyState == 4 && this.status != 200) {
@@ -87,7 +88,6 @@ wuf.api = (endpoint, publicKey, payload)=>{
 		        }
 		    }
 		};
-		xhttp.open((payload ? 'POST' : 'GET'), wuf.host+wuf.url+endpoint, true);
 
 		try {
             let jwt = wuf.getJWT();
@@ -98,6 +98,7 @@ wuf.api = (endpoint, publicKey, payload)=>{
 
 		let load = (payload ? JSON.stringify(payload) : null)
 
+		xhttp.open((load ? 'POST' : 'GET'), wuf.host+wuf.url+endpoint, true);
         if(load) xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
         alert("Sending "+load)
         xhttp.send(load);
