@@ -9,7 +9,8 @@
     "develop": "npm-run-all --parallel start develop-app",
     "develop-app": "cd app && node build/dev-server.js",
     "serve": "npm run build && npm run start",
-    "start": "cd app && npm install && cd .. && node index.js",
+    "postinstall": "npm run app/build",
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "engines": {
