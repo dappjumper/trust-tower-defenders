@@ -5,7 +5,7 @@
 <script>
 export default {
   name: 'GameWindow',
-  props: ["address"],
+  props: ["user"],
   data () {
     return {
 
@@ -14,54 +14,7 @@ export default {
   mounted () {
     const app = new PIXI.Application({ transparent: true, width: window.innerWidth, height: window.innerHeight, resolution: window.devicePixelRatio || 1, });
     document.querySelector('#gameview').appendChild(app.view);
-
-    // create a new Sprite from an image path.
-    const bunny = PIXI.Sprite.from('/static/assets/creature.png');
-
-    // center the sprite's anchor point
-    bunny.anchor.set(0.5,1);
-
-    // move the sprite to the center of the screen
-    bunny.x = app.screen.width / 2;
-    bunny.y = app.screen.height / 2;
-
-    let base = this.address.substr(0,6)
-
-    bunny.tint = parseInt(base) + 0xfafafa;
-    console.log(bunny.tint)
-
-    app.stage.addChild(bunny);
-
-    let startTime = new Date().getTime()
-
-    let idleanimation = (object)=>{
-      let x = object.scale.x;
-      let y = object.scale.y;
-      let currentDate = new Date().getTime()
-      let dx = 1//Math.abs(Math.sin(startTime - currentDate / 1000)) / 2 + 0.5
-      let dy = Math.abs(Math.sin(startTime - currentDate / 1000)) / 2 + 0.5
-      object.scale.set(dx,dy)
-    }
-
-    // Listen for window resize events
-    window.addEventListener('resize', resize);
-
-    // Resize function window
-    function resize() {
-      // Resize the renderer
-      app.renderer.resize(window.innerWidth, window.innerHeight);
-      
-      // You can use the 'screen' property as the renderer visible
-      // area, this is more useful than view.width/height because
-      // it handles resolution
-      bunny.position.set(app.screen.width/2, app.screen.height/2);
-    }
-
-    app.ticker.add(() => {
-        // just for fun, let's rotate mr rabbit a little
-        idleanimation(bunny)
-    });
-
+    ttdgame.setup(app, this)
   },
   methods: {
     
@@ -69,7 +22,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 #gameview {
   position:fixed;
   top:0;
@@ -78,5 +31,11 @@ export default {
   height:100%;
   z-index:0;
   background:#333333;
+}
+#gameview canvas {
+  display:block;
+  width:100%!important;
+  height:100%!important;
+  image-rendering:pixelated;
 }
 </style>

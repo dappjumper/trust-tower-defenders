@@ -1,6 +1,6 @@
 <template>
   <div id="appcontent">
-    <GameWindow v-bind:address="user.address" v-if="ready" />
+    <GameWindow v-bind:user="user" v-if="ready" />
     <div v-if="ready" class="inheader">
       <span>{{user.address}}</span>
       <button v-on:click="logout">
