@@ -78,7 +78,6 @@ wuf.api = (endpoint, publicKey, payload)=>{
 	return new Promise((resolve, reject)=>{
 		let xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function () {
-			console.log(wuf.host+wuf.url+endpoint)
 		    if (this.readyState == 4 && this.status == 200) {
 		        resolve(JSON.parse(this.responseText))
 		    } else {

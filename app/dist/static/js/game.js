@@ -40,7 +40,7 @@ ttdgame.states = {
 		// Resize function window
 		function resize() {
 		  // Resize the renderer
-		  app.renderer.resize(window.innerWidth/2, window.innerHeight/2);
+		  app.renderer.resize(window.innerWidth, window.innerHeight);
 		  
 		  // You can use the 'screen' property as the renderer visible
 		  // area, this is more useful than view.width/height because
