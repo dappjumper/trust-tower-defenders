@@ -37,6 +37,7 @@ const defaultOptions = {
 		return new Promise((resolve, reject)=>{
 			console.log({signature, content})
 			var res = EthUtil.fromRpcSig(signature);
+			console.log(res,"The res")
 			var addr = EthUtil.bufferToHex(EthUtil.pubToAddress(EthUtil.ecrecover(EthUtil.hashPersonalMessage(Buffer.from(content)), res.v, res.r, res.s)));
 			console.log(addr,"The address resolved")
 			if(addr) {
