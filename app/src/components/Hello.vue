@@ -1,7 +1,8 @@
 <template>
   <div>
-    <div v-if="ready">
-      <pre>{{JSON.stringify(user)}}</pre>
+    <GameWindow v-if="ready" />
+    <div v-if="ready" class="inheader">
+      <span>{{user.address}}</span>
       <button v-on:click="logout">
         <a>Log out</a>
       </button>
@@ -27,11 +28,9 @@
         </button>
       </div>
       <div v-if="state == 'hasNoWeb3'">
-        <pre>
-          Please download Metamask
-        </pre>
+        <pre>Please download Metamask</pre>
         <button>
-          <a href="https://metamask.io">
+          <a target="_blank" href="https://metamask.io">
             Download
           </a>
         </button>
@@ -41,6 +40,9 @@
 </template>
 
 <script>
+
+  import GameWindow from './GameWindow.vue'
+
 export default {
   name: 'tdd',
   data () {
@@ -51,9 +53,12 @@ export default {
       ready: false
     }
   },
+  components: {
+    GameWindow
+  },
   mounted () {
     //Check for module dependencies
-    if(!window.web3)  return this.setError("Failed to load web3", "noWeb3");
+    if(!window.web3)  return this.setError("Failed to load web3", "hasNoWeb3");
     if(!window.wuf)   return this.setError("Failed to load user system");
     if(!window.PIXI)  return this.setError("Failed to load graphics");
 
@@ -67,6 +72,10 @@ export default {
     this.tryWeb3()
   },
   methods: {
+    setError (string, newState) {
+      console.log(string)
+      this.state = newState;
+    },
     logout () {
       this.user = false;
       this.ready = false;
@@ -144,118 +153,13 @@ export default {
       }
       setTimeout(this.getAddressLoop, 500)
     }
-    /*logout () {
-      this.status = ""
-      this.ready = false;
-      this.user = false;
-      wuf.setJWT(null)
-      window.location.reload()
-    },
-    setError (string, newState) {
-      this.status = string || "An error occured"
-      this.state = newState || 'error';
-    },
-    setStatus (string) {
-      this.status = string || ""
-    },
-    tryLogin (json) {
-      let jsonObj = json;
-      this.state = "loading"
-      this.status = "Logging in as "+json.address+"..."
-      wuf.api('user/'+json.address+'/profile')
-        .then((user)=>{
-          if(user.error) {
-            this.state = "errorLogin"
-            return this.status = user.error;
-          }
-          this.state = "dashboard"
-          this.status = ""
-          this.ready = true;
-          this.user = user;
-        })
-        .catch(()=>{
-          this.state = "errorLogin"
-          this.status = "Login failed"
-          wuf.setJWT(null)
-        })
-    },
-    tryWeb3 () {
-      this.state = "tryWeb3"
-      this.status = ""
-      wuf.getWeb3()
-        .then(()=>{
-          let account = wuf.hasVisibleAccount()
-          if(account) {
-            this.user.address = account;
-            this.state = "signWeb3"
-          } else {
-            this.state = "loading"
-            this.status = "Loading..."
-            setTimeout(this.tryWeb3, 500)
-          }
-        })
-        .catch(()=>{
-          this.setError("Please download metamask","noWeb3")
-        })
-    },
-    connectWeb3 () {
-      wuf.connectWeb3()
-      .then(()=>{
-        this.state = "signWeb3"
-        this.user.address = wuf.hasVisibleAccount()
-        if(!this.user.address) return reject()
-        this.signWeb3()
-      })
-      .catch(()=>{})
-    },
-    signWeb3 () {
-      let address = this.user.address;
-      this.state = "loading"
-      this.status = "Communicating..."
-      wuf.api('user/' + address)
-        .then((response)=>{
-          this.status = "Please please confirm your signature in the popup"
-          this.state = "signWeb3"
-          wuf.sign(address, response.challenge)
-            .then((signature)=>{
-              if(this.user.signed == true) return;
-              this.user.signed = true;
-              this.state = "loading"
-              this.status = "Communicating..."
-              wuf.api('user/'+address+'/getjwt', address, {
-                signature: signature
-              })
-                .then((response)=>{
-                  if(response.error) {
-                    this.status = "Failed to get token"
-                    return this.state = 'error';
-                  } else {
-                    wuf.setJWT(response);
-                    this.tryLogin(response);
-                  }
-                })
-                .catch((error)=>{
-
-                })
-            })
-            .catch(()=>{
-              if(this.user.signed == true) return;
-              this.status = "Signature failed"
-              this.state = "signWeb3"
-            })
-        })
-        .catch(()=>{
-          this.status = "Communication failed..."
-          this.state = "errorSign"
-          wuf.setJWT(null)
-        })
-    }*/
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style>
+
 h1, h2 {
   font-weight: normal;
 }
@@ -304,4 +208,27 @@ button:hover a {
 a {
   color: #fafafa;
 }
+
+.inheader {
+  position:fixed;
+  top:0;
+  right:0;
+  padding-right:32px;
+  font-family:monospace;
+  z-index:2;
+}
+
+header {
+  z-index:1;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+}
+
+.inheader button {
+  margin-left:0px;
+  transform:scale(0.7,0.7);
+}
+
 </style>
