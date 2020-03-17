@@ -1,55 +1,126 @@
 window.ttdgame = {
-	step: 64
+	step: 64,
+	instances: [],
+	offsetX: 0,
+	offsetY: 0
 }
 
-class BoardPiece {
-	constructor(at) {
+class GameObject {
+	constructor(x, y, overwrites) {
+		//Initialize logical position
 		this.position = {
-			x: 0,
-			y: 0
+			x: x||0,
+			y: y||0
 		}
-		if(this.spawn && at) this.spawn(at)
+
+		//Loop through overwrites
+		for(let prop in overwrites) {
+			this[prop] = overwrites[prop];
+		}
+
+		//Add to the global instances list and assign the index to this object's scope
+		this.id = window.ttdgame.instances.length
+		window.ttdgame.instances.push(this)
+
+		//Run building phases if available
+		this.preBuild()
+			.then(()=>{
+				this.build()
+					.then(()=>{
+						console.log("Try postbuild")
+						this.postBuild()
+						console.log("postbuild complete")
+					})
+					.catch(()=>{
+						this.destroy()
+					})
+			})
+			.catch(()=>{
+				this.destroy()
+			})
 	}
-	placeAt(at) {
-		this.position = at;
-		this.desiredPosition = at;
-		this.draw.position.set(at.x*ttdgame.step, at.y*ttdgame.step)
+	destroy() {
+		console.log("Destruction")
 	}
+	preBuild() {
+		return new Promise((resolve, reject)=>{
+			resolve()
+		})
+	}
+	build() {
+		return new Promise((resolve, reject)=>{
+			resolve()
+		})
+	}
+	postBuild() {
+		//Add the drawable element to graphics engine
+		if(this.draw) {
+			console.log("Has drawable element")
+			try {
+				ttdgame.app.stage.addChild(this.draw)
+			} catch(e) {
+				console.log(e)
+			}
+		}
+		return;
+		if(typeof this.draw !== 'undefined') {
+			ttdgame.app.stage.addChild(this.draw)
+		}
+
+		//Add the logic function to the graphics engine
+		if(typeof this.update !== 'undefined') {
+			ttdgame.app.ticker.add(function(){
+				this.update();
+			}.bind(this))
+		}
+	}
+	fromGrid(logicalPosition) {
+		return logicalPosition * ttdgame.step;
+	}
+}
+
+class Board extends GameObject {
+	preBuild() {
+		return new Promise((resolve, reject)=>{
+			this.texture = new PIXI.Texture.from('/static/assets/tile.png')
+			this.texture_lit = new PIXI.Texture.from('/static/assets/tile_lit.png')
+			this.draw = new PIXI.TilingSprite(
+			    this.texture,
+			    this.fromGrid(this.width),
+			    this.fromGrid(this.height),
+			);
+			//this.draw = new PIXI.Sprite.from('/static/assets/creature.png')
+			resolve()
+		})
+	}
+	center() {
+		this.draw.position.set(ttdgame.app.screen.width/2-(this.fromGrid(this.width)/2), ttdgame.app.screen.height/2-(this.fromGrid(this.height)/2))
+	}
+	/*build() {
+		return new Promise((resolve, reject)=>{
+			this.draw.interactive = true;
+			this.draw.hitArea = new PIXI.Rectangle(0, 0, this.fromGrid(this.width), this.fromGrid(this.height));
+			this.draw.mouseover = (mouseData)=> {
+				this.draw.texture = this.texture_lit;
+			}
+			this.draw.mouseout = (mouseData)=> {
+				this.draw.texture = this.texture;
+			}
+			resolve()
+		})
+	}*/
+}
+
+class BoardPiece extends GameObject {
+	
 }
 
 class Wall extends BoardPiece {
-	spawn(at) {
-		this.draw = new PIXI.Text('🤸‍♂️',{fontFamily : 'sans-serif', fontSize: 60, fill : 0xfafafa, align : 'center'})
-		this.placeAt(at)
-		this.draw.interactive = true;
-		this.draw.buttonMode = true;
-		this.draw.on('pointerdown', function(){this.clicked();}.bind(this));
-		ttdgame.app.stage.addChild(this.draw)
-		ttdgame.app.ticker.add(function(){this.update();}.bind(this))
-	}
-	update() {
-		//console.log(ttdgame.app.interaction.mouse.global)
-		if(this.desiredPosition.x !== this.position.x || this.desiredPosition.y !== this.position.y) {
-			this.draw.text = '🏃‍♂️'
-			let pos = {
-				x: this.draw.position.x / 64,
-				y: this.draw.position.y / 64
-			}
-			if(pos.x !== this.desiredPosition.x) {
-				this.position.x = Math.round(pos.x)
-				this.draw.position.x += (pos.x < this.desiredPosition.x ? this.speed || 1 : -this.speed || -1);
-			}
-			if(pos.y !== this.desiredPosition.y) {
-				this.position.y = Math.round(pos.y)
-				this.draw.position.y += (pos.y < this.desiredPosition.y ? this.speed || 1 : -this.speed || -1);
-			}
-		} else {
-			this.draw.text = '🤸‍♂️'
-		}
-	}
-	clicked() {
-		this.desiredPosition = {x: Math.round(Math.random()*10), y: Math.round(Math.random()*10)}
-	}
+	
+}
+
+class Creature extends BoardPiece {
+
 }
 
 ttdgame.states = {
@@ -63,36 +134,22 @@ ttdgame.states = {
 		// Listen for window resize events
 		window.addEventListener('resize', resize);
 
-		let wall = new Wall({x: 5, y: 5})
-		wall.speed = 5; 
+		let board = new Board(0,0, {
+			width: 10,
+			height: 10
+		})
 
-		let snail = new Wall({x: 5, y: 5})
-		snail.speed = 1; 
+		board.center()
 
-		let rocket = new Wall({x: 5, y: 5})
-		rocket.speed = 32; 
+		console.log(board)
 
-		setInterval(function(){
-			rocket.desiredPosition = {
-				x: Math.round(Math.random()*10),
-				y: Math.round(Math.random()*10)
-			}
-			snail.desiredPosition = {
-				x: Math.round(Math.random()*10),
-				y: Math.round(Math.random()*10)
-			}
-			wall.desiredPosition = {
-				x: Math.round(Math.random()*10),
-				y: Math.round(Math.random()*10)
-			}
-		},1000)
-
-		console.log(wall)
+		console.log(board)
 
 		// Resize function window
 		function resize() {
+			ttdgame.app.renderer.resize(window.innerWidth, window.innerHeight);
+			board.center();
 		  // Resize the renderer
-//		  app.renderer.resize(window.innerWidth, window.innerHeight);
 		  
 		  // You can use the 'screen' property as the renderer visible
 		  // area, this is more useful than view.width/height because
