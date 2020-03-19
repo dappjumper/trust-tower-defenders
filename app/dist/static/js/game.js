@@ -328,7 +328,15 @@ class Board {
 		this.underground = new Grid(width, height, 64)
 		this.floor = new Grid(width, height, 64)
 		this.sky = new Grid(width, height, 64)
-
+		this.draw = new PIXI.TilingSprite(
+		    new PIXI.Texture.from('/static/assets/tile.png'),
+		    width*64,
+		    height*64,
+		);
+		this.draw.position.x = -(width*64)/2
+		this.draw.position.y = -(height*64)/2
+		this.draw.alpha = 0.5
+		this.floor.draw.addChild(this.draw)
 		this.sky.draw.alpha = 0.5;
 		this.underground.draw.alpha = 0.1;
 
@@ -344,46 +352,89 @@ class Board {
 		let dimension = this.isEmptyLocation(x,y,_dimension);
 		if(!dimension) return false;
 		
-		let size = dimension.getSize()
-		let offsets = dimension.getOffsets(x, y)
-
-		object.draw.position.x = offsets.x
-		object.draw.position.y = offsets.y
 
 		dimension.grid[x][y] = object
+		object.dimension = _dimension
+		object.board = this
+		object.x = x
+		object.y = y
+		this.moveEntity(object, x, y, true)
 		dimension.draw.addChild(object.draw)
+		if(object.onSpawned) object.onSpawned()
 	}
 	isEmptyLocation(x, y, _dimension) {
-		let dimension = this[(_dimension||'floor')]
+		let dimension = this[_dimension]
 		if(!dimension) return false;
 		if(typeof dimension.grid[x] == 'undefined') return false;
 		if(typeof dimension.grid[x][y] == 'undefined') return false;
 		if(dimension.grid[x][y]) return false;
 		return dimension;
 	}
-	applyDimensionVisuals(drawObject, dimension) {
-		switch(dimension) {
-			case 'sky':
-			break;
+	moveEntity(entity, x, y, instant) {
+		let offsets = this[entity.dimension].getOffsets(x, y)
 
-			case 'floor':
-			break;
-
-			case 'underground':
-			break;
-		}
+		entity.idealPosition.x = offsets.x
+		entity.idealPosition.y = offsets.y
+		if(instant) entity.draw.position = entity.idealPosition
+		entity.x = x
+		entity.y = y
 	}
 }
 
 class GameObject {
 	constructor() {
 		if(this.visual) this.visual()
+		this.idealPosition = {x:this.draw.position.x, y:this.draw.position.y}
 	}
 }
 
 class Creature extends GameObject {
 	visual() {
 		this.draw = new PIXI.Sprite.from('/static/assets/creature.png')
+	}
+	onSpawned() {
+		this.lastMovement = new Date().getTime()
+		ttdgame.app.ticker.add(function(delta){
+			this.update(delta)
+		}.bind(this))
+	}
+	update(delta) {
+		if(this.draw.position.x !== this.idealPosition.x) {
+			let calc = delta*2
+			if(this.draw.position.x > this.idealPosition.x) this.draw.position.x -= calc
+			if(this.draw.position.x < this.idealPosition.x) this.draw.position.x += calc
+			if(this.draw.position.y > this.idealPosition.y) this.draw.position.y -= calc
+			if(this.draw.position.y < this.idealPosition.y) this.draw.position.y += calc
+		}
+		if(new Date().getTime() - this.lastMovement > 1000) {
+			this.lastMovement = new Date().getTime()
+			let newX = this.x + Math.round((Math.random()*2)-1)
+			let newY = this.y + Math.round((Math.random()*2)-1)
+			if(this.board.isEmptyLocation(newX, newY, this.dimension)) {
+				this.moveTo(newX,newY,this.dimension)
+			}
+		}
+	}
+	moveTo(x, y, dimension) {
+		this.board[dimension].grid[this.x][this.y] = null;
+		this.board[dimension].grid[x][y] = this;
+		this.board.moveEntity(this, x, y)
+	}
+}
+
+class Mob extends Creature {
+
+}
+
+class WalkingMob extends Mob {
+	visual() {
+		this.draw = new PIXI.Sprite.from('/static/assets/creature.png')
+	}
+}
+
+class FlyingMob extends Mob {
+	visual() {
+		this.draw = new PIXI.Sprite.from('/static/assets/flying.png')
 	}
 }
 
@@ -414,8 +465,19 @@ ttdgame.states = {
 					if(y == 0 || y == maxY-1 || x == 0 || x == maxX-1) board.spawn(new Wall, x, y, 'floor')
 			}
 		}
-		board.spawn(new Creature(),Math.floor(maxX*Math.random()), Math.floor(maxY*Math.random()), 'floor')
-		board.spawn(new Creature(),Math.floor(maxX*Math.random()), Math.floor(maxY*Math.random()), 'underground')
+		board.spawn(new WalkingMob(),Math.floor(maxX*Math.random()), Math.floor(maxY*Math.random()), 'floor')
+		board.spawn(new WalkingMob(),Math.floor(maxX*Math.random()), Math.floor(maxY*Math.random()), 'floor')
+		board.spawn(new WalkingMob(),Math.floor(maxX*Math.random()), Math.floor(maxY*Math.random()), 'floor')
+		board.spawn(new WalkingMob(),Math.floor(maxX*Math.random()), Math.floor(maxY*Math.random()), 'floor')
+		board.spawn(new WalkingMob(),Math.floor(maxX*Math.random()), Math.floor(maxY*Math.random()), 'floor')
+
+		board.spawn(new FlyingMob(),Math.floor(maxX*Math.random()), Math.floor(maxY*Math.random()), 'sky')
+		board.spawn(new FlyingMob(),Math.floor(maxX*Math.random()), Math.floor(maxY*Math.random()), 'sky')
+		board.spawn(new FlyingMob(),Math.floor(maxX*Math.random()), Math.floor(maxY*Math.random()), 'sky')
+		board.spawn(new FlyingMob(),Math.floor(maxX*Math.random()), Math.floor(maxY*Math.random()), 'sky')
+		board.spawn(new FlyingMob(),Math.floor(maxX*Math.random()), Math.floor(maxY*Math.random()), 'sky')
+		board.spawn(new FlyingMob(),Math.floor(maxX*Math.random()), Math.floor(maxY*Math.random()), 'sky')
+		board.spawn(new FlyingMob(),Math.floor(maxX*Math.random()), Math.floor(maxY*Math.random()), 'sky')
 
 		// Listen for animate update
 		
