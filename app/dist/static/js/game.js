@@ -16,47 +16,43 @@ class View {
 		this.world.addChild(focus.sky.draw)
 		this.xoffsetCenter = ttdgame.app.screen.width/2;
 		this.yoffsetCenter = ttdgame.app.screen.height/2;
-		this.xoffset = ttdgame.app.screen.width/2;
-		this.yoffset = ttdgame.app.screen.height/2;
 		ttdgame.app.stage.addChild(this.world)
-		ttdgame.app.ticker.add(function(){this.project()}.bind(this))
-		this.world.interactive = true;
-		    this.world
-		        .on('pointerdown', function(e){this.onDragStart(e)}.bind(this))
-		        .on('pointerup', function(e){this.onDragEnd(e)}.bind(this))
-		        .on('pointermove', function(e){this.onDragMove(e)}.bind(this))
+		this.drag = new PIXI.Graphics();
+		this.drag.position.z=1
+		ttdgame.app.stage.addChild(this.drag)
+		this.resetDragger()
+
+		ttdgame.app.renderer.view.addEventListener('pointerdown', function(e){this.onDragStart(e)}.bind(this))
+		ttdgame.app.renderer.view.addEventListener('mouseout', function(e){this.onDragEnd(e)}.bind(this))
+		ttdgame.app.renderer.view.addEventListener('pointerup', function(e){this.onDragEnd(e)}.bind(this))
+		ttdgame.app.renderer.view.addEventListener('pointermove', function(e){this.onDragMove(e)}.bind(this))
 	}
 	onDragStart(event) {
 		this.isDragging = true;
+		this.resetDragger()
 		this.dragData = {
-			x: event.data.global.x,
-			y: event.data.global.y
+			x: event.layerX,
+			y: event.layerY
 		}
+	}
+	resetDragger() {
+		this.drag.clear()
 	}
 	onDragEnd() {
 		this.isDragging = false;
-		this.xoffsetCenter = this.xoffset
-		this.yoffsetCenter = this.yoffset
+		this.resetDragger()
 	}
 	onDragMove(event) {
 		if(!this.isDragging) return;
-		this.xoffset = this.xoffsetCenter + ( event.data.global.x - this.dragData.x )
-		this.yoffset = this.yoffsetCenter + ( event.data.global.y - this.dragData.y )
-		
-		//this.yoffset = event.data.global.y - this.dragData.y
-	}
-	project() {
-		this.world.position.x = this.xoffset
-		this.world.position.y = this.yoffset
+		//this.drag.width = (event.data.global.x - this.drag.position.x)
+		//this.drag.height = (event.data.global.y - this.drag.position.y)
+		this.drag.clear()
+		this.drag.beginFill(0xfafafa, 0.1);
+		this.drag.lineStyle(1, 0xfafafa, 0.6);
+		this.drag.drawRect(this.dragData.x, this.dragData.y, event.layerX - this.dragData.x, event.layerY - this.dragData.y);
+
 	}
 	zoom(delta) {
-
-		//this.xoffset = (ttdgame.app.screen.width / 2) + (delta)
-		/*this.xoffset += (mouseE.x - this.world.width / 2) / delta
-		this.yoffset += (mouseE.y - this.world.height / 2) / delta*/
-
-		this.xoffsetCenter = this.xoffset
-		this.yoffsetCenter = this.yoffset
 		let step = (delta > 0 ? 0.05 : -0.05)
 		this.adjustScale(this.world,step)
 		this.center()
@@ -71,7 +67,7 @@ class View {
 		this.center()
 	}
 	center() {
-		this.world.position.set(ttdgame.app.screen.width/2+this.xoffset,ttdgame.app.screen.height/2+this.yoffset)
+		this.world.position.set(ttdgame.app.screen.width/2,ttdgame.app.screen.height/2)
 	}
 }
 
