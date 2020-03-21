@@ -42,6 +42,59 @@ class View {
 		this.isDragging = false;
 		this.resetDragger()
 	}
+	getSelected(x,y,x2,y2) {
+		let xOffset = this.world.position.x-this.world.width/2
+		let yOffset = this.world.position.y-this.world.height/2
+
+		if((x < xOffset && x2 < xOffset) 
+			|| (y < yOffset && y2 < yOffset) 
+			|| (x > xOffset+this.world.width && x2 > xOffset+this.world.width)
+			|| (y > yOffset+this.world.height && y2 > yOffset+this.world.height)) {
+			//Selection is not within world or containing world
+		} else {
+			let scaleFactor = (64 * this.world.scale.x)
+			let pX = (x-xOffset) / scaleFactor
+			let pY = (y-yOffset) / scaleFactor
+			let pX2 = pX + (x2-x) / scaleFactor
+			let pY2 = pY + (y2-y) / scaleFactor
+			
+			let fromX = Math.floor(pX2 > pX ? pX : pX2)
+			let fromY = Math.floor(pY2 > pY ? pY : pY2)
+			let toX = Math.floor(pX2 > pX ? pX2 : pX)
+			let toY = Math.floor(pY2 > pY ? pY2 : pY)
+
+			let foundObjects = []
+
+			if(fromX < 0) fromX = 0
+			if(fromY < 0) fromY = 0
+			if(toX > this.focus.width-1) toX = this.focus.width-1
+			if(toY > this.focus.height-1) toY = this.focus.height-1
+
+			for(let gX = fromX; gX <= toX; gX++) {
+				for(let gY = fromY; gY <= toY; gY++) {
+					if(this.focus.sky.grid[gX][gY]) foundObjects.push(this.focus.sky.grid[gX][gY])
+					if(this.focus.floor.grid[gX][gY]) foundObjects.push(this.focus.floor.grid[gX][gY])
+					if(this.focus.underground.grid[gX][gY]) foundObjects.push(this.focus.underground.grid[gX][gY])
+				}
+			}
+			this.unselectAll()
+			this.handleSelection(foundObjects)
+		}
+	}
+	unselectAll() {
+		for(let x = 0; x < this.focus.width; x++) {
+			for(let y = 0; y < this.focus.height; y++) {
+				if(this.focus.sky.grid[x][y]) this.focus.sky.grid[x][y].unselect()
+				if(this.focus.floor.grid[x][y]) this.focus.floor.grid[x][y].unselect()
+				if(this.focus.underground.grid[x][y]) this.focus.underground.grid[x][y].unselect()
+			}
+		}
+	}
+	handleSelection(objects) {
+		for(let o in objects) {
+			if(objects[o].selectable) objects[o].select()
+		}
+	}
 	onDragMove(event) {
 		if(!this.isDragging) return;
 		//this.drag.width = (event.data.global.x - this.drag.position.x)
@@ -50,6 +103,8 @@ class View {
 		this.drag.beginFill(0xfafafa, 0.1);
 		this.drag.lineStyle(1, 0xfafafa, 0.6);
 		this.drag.drawRect(this.dragData.x, this.dragData.y, event.layerX - this.dragData.x, event.layerY - this.dragData.y);
+		this.getSelected(this.dragData.x, this.dragData.y, event.layerX, event.layerY)
+
 
 	}
 	zoom(delta) {
@@ -119,6 +174,8 @@ class Board {
 		    width*64,
 		    height*64,
 		);
+		this.width = width
+		this.height = height
 		this.draw.position.x = -(width*64)/2
 		this.draw.position.y = -(height*64)/2
 		this.draw.alpha = 0.5
@@ -162,7 +219,23 @@ class Board {
 class GameObject {
 	constructor() {
 		if(this.visual) this.visual()
+		if(this.init) this.init()
 		this.idealPosition = {x:this.draw.position.x, y:this.draw.position.y}
+	}
+	select() {
+		this.draw.filters = [ttdgame.filters.gameObjectOutline];
+	}
+	unselect() {
+		this.draw.filters = []
+	}
+	enable(){
+		this.draw.interactive = true
+		this.draw.buttonMode = true
+		this.selectable = true
+		this.draw.on('mousedown', function(){
+			ttdgame.view.unselectAll()
+			this.select()
+		}.bind(this))
 	}
 }
 
@@ -172,6 +245,7 @@ class Creature extends GameObject {
 	}
 	onSpawned() {
 		this.lastMovement = new Date().getTime()
+		this.enable()
 		ttdgame.app.ticker.add(function(delta){
 			this.update(delta)
 		}.bind(this))
@@ -201,7 +275,9 @@ class Creature extends GameObject {
 }
 
 class Mob extends Creature {
-
+	init() {
+		this.selectable = true
+	}
 }
 
 class WalkingMob extends Mob {
@@ -220,16 +296,25 @@ class Wall extends GameObject {
 	visual() {
 		this.draw = new PIXI.Sprite.from('/static/assets/wall.png')
 	}
+	onSpawned() {
+		this.enable()
+	}
+
 }
 
 ttdgame.states = {
 	intro: (app, env)=>{
 		ttdgame.app = app;
 		ttdgame.env = env;
+		ttdgame.filters = {
+			gameObjectOutline: new PIXI.filters.OutlineFilter(1, 0xfafafa)
+		}
 
 		let board = new Board(20, 10)
 		let viewer = new View(board)
 		viewer.center()
+		ttdgame.view = viewer;
+		ttdgame.board = board;
 
 		let bird = new Creature();
 		let spider = new Creature();
