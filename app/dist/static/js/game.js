@@ -51,6 +51,7 @@ class View {
 			|| (x > xOffset+this.world.width && x2 > xOffset+this.world.width)
 			|| (y > yOffset+this.world.height && y2 > yOffset+this.world.height)) {
 			//Selection is not within world or containing world
+			this.unselectAll()
 		} else {
 			let scaleFactor = (64 * this.world.scale.x)
 			let pX = (x-xOffset) / scaleFactor
