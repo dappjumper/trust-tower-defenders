@@ -2,7 +2,10 @@ window.ttdgame = {
 	step: 64,
 	instances: [],
 	offsetX: 0,
-	offsetY: 0
+	offsetY: 0,
+	_uid: 0,
+	gameObjects: {},
+	uid: (object)=>{ttdgame.gameObjects[ttdgame._uid+1] = object; ttdgame._uid++; return ttdgame._uid;}
 }
 
 class View {
@@ -219,6 +222,7 @@ class Board {
 
 class GameObject {
 	constructor() {
+		this.uid = ttdgame.uid(this)
 		if(this.visual) this.visual()
 		if(this.init) this.init()
 		this.idealPosition = {x:this.draw.position.x, y:this.draw.position.y}
