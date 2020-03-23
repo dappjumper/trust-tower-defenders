@@ -8,6 +8,7 @@ var userSchema = new Schema({
   	type: Number,
   	default: 0
   },
+  hero: Object,
   meta: Object
 });
 

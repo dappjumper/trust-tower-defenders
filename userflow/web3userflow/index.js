@@ -102,6 +102,26 @@ const routes = {
 			}.bind(this))
 		}
 	},
+	'/wuf/api/user/:address/chooseHero': {
+		method: "post",
+		description:"",
+		protected:true,
+		function: function(req, res) {
+			if(parseInt(req.body.hero_id) !== 0) return res.send({error:"Can't choose other hero than Slime in demo"})
+			User.model.updateOne({address:req.user.address}, {$set:{"hero.id":req.body.hero_id}})
+				.then((user)=>{
+					console.log(user)
+					if(user) {
+						res.send({id: req.body.hero_id})
+					} else {
+						res.send({error:"Failed to choose hero..."})
+					}
+				})
+				.catch((error)=>{
+					res.send({error:"Failed to pick hero..."})
+				})
+		}
+	},
 	'/wuf/api/user/:address/getjwt': {
 		method: "post",
 		description:"",
