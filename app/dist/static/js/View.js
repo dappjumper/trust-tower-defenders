@@ -15,7 +15,7 @@ class View {
 		ttdgame.app.stage.addChild(this.drag)
 		this.resetDragger()
 
-		ttdgame.app.renderer.view.addEventListener('pointerdown', function(e){this.onDragStart(e)}.bind(this))
+		ttdgame.app.renderer.view.addEventListener('pointerdown', function(e){this.unselectAll(); this.onDragStart(e)}.bind(this))
 		ttdgame.app.renderer.view.addEventListener('mouseout', function(e){this.onDragEnd(e)}.bind(this))
 		ttdgame.app.renderer.view.addEventListener('pointerup', function(e){this.onDragEnd(e)}.bind(this))
 		ttdgame.app.renderer.view.addEventListener('pointermove', function(e){this.onDragMove(e)}.bind(this))

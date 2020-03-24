@@ -16,8 +16,7 @@ class GameObject {
 		this.draw.buttonMode = true
 		this.selectable = true
 		this.draw.on('mousedown', function(){
-			ttdgame.view.unselectAll()
-			this.select()
+			setTimeout(function(){this.select()}.bind(this),1)
 		}.bind(this))
 	}
 }
