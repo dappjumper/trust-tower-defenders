@@ -3,7 +3,7 @@ A tower defense game using Vue.js, websockets and NodeJS with Express
 
 ## Installation
 - Clone this repository to your machine
-- Execute in command line `npm run start`
+- Execute in command line `npm run init`
 
 ## Building the game
 - Make sure you have the project source (closed source) in the /app folder
