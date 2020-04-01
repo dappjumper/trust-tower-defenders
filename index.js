@@ -12,10 +12,12 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(bodyParser.json());
 
-const userflow = require('./modules/user')({
+const userModule = require('./modules/user')({
 	database: process.env.MONGODB_URI,
 	verbose: true
 }, app)
+
+const gameModule = require('./modules/game')(app)
 
 app.get('/', (req, res) => res.sendFile(__dirname+'/dist/index.html') )
 
