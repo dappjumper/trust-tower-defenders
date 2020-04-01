@@ -10,6 +10,12 @@
 					{{status}}
 				</p>
 			</div>
+			<div v-if="state == 'encodeWallet">
+				<h1>Please choose a password for safety reasons</h1>
+				<input id="encodePassword" type="password"/>
+				<input id="encodePassword_verify" type="password"/>
+				<button>Register</button>
+			</div>
 			<div v-if="state == 'initial'">
 				<h1>Welcome to TTD!</h1>
 				<button v-on:click="createWallet">Register with new local wallet</button>

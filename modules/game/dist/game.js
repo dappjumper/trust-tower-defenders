@@ -26,7 +26,7 @@ var app = new Vue({
   		this.state = "loading"
   		this.status = "Generating account..."
   		this.user = this.web3.eth.accounts.create();
-  		this.status = "Registering address: "+this.user.address
+  		this.state = "encodeWallet"
   	}
   }
 })
