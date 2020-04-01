@@ -2,7 +2,20 @@
 	<head></head>
 	<body>
 		<div id="app">
-		  {{ message }}
+			<div v-if="state == 'loading'">
+				<h1>
+					Loading...
+				</h1>
+				<p>
+					{{status}}
+				</p>
+			</div>
+			<div v-if="state == 'initial'">
+				<h1>Welcome to TTD!</h1>
+				<button v-on:click="createWallet">Register with new local wallet</button>
+				<button>Login via local wallet file</button>
+				<button>Register or login via metamask</button>
+			</div>
 		</div>
 	<script type="text/javascript" src="/js/web3.js"></script>
 	<script type="text/javascript" src="/js/wuf.js"></script>
