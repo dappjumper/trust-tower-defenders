@@ -10,8 +10,9 @@
 					{{status}}
 				</p>
 			</div>
-			<div v-if="state == 'encodeWallet">
+			<div v-if="state == 'encryptNewWallet'">
 				<h1>Please choose a password for safety reasons</h1>
+				<p>Your address will be {{user.address}}</p>
 				<input id="encodePassword" type="password"/>
 				<input id="encodePassword_verify" type="password"/>
 				<button>Register</button>
