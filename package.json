@@ -4,14 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "develop": "npm-run-all --parallel start develop-app",
-    "serve": "npm run build && npm run start",
-    "postinstall": "",
-    "develop-app": "cd app && npm run dev",
     "start": "node index.js",
-    "init": "npm install && cd app && npm install && cd ..",
-    "buildstart": "cd app && npm run build && cd .. && npm run start",
-    "ship": "cd app && npm run build && cd .. && git add .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "engines": {
@@ -28,16 +21,7 @@
     "express-jwt": "^5.3.1",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.8.11",
-    "ora": "^4.0.3",
-    "pixi-filters": "^3.1.1",
-    "pixi.js": "^5.2.1",
-    "rimraf": "^3.0.2",
-    "shelljs": "^0.8.3",
     "socket.io": "^2.3.0",
-    "vue": "^2.6.11",
     "webpack": "^4.42.0"
-  },
-  "devDependencies": {
-    "npm-run-all": "^4.1.5"
   }
 }
