@@ -172,6 +172,13 @@ function _Web3UserFlow(options,app){
 		db: (typeof options.database == 'string' ? 'connect' : (options.database||false)),
 		app: app || false
 	}
+	let path = require('path')
+	wuf.app.get('/js/wuf.js', (req, res)=>{
+		res.sendFile(path.join(__dirname, './dist', 'wuf.js'))
+	})
+	wuf.app.get('/js/web3.js', (req, res)=>{
+		res.sendFile(path.join(__dirname, './dist', 'web3.js'))
+	})
 
 	for(var prop in middleware) {
 		log('Loading middleware: '+prop)
