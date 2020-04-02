@@ -3,6 +3,7 @@ var app = new Vue({
   data: {
     message: 'Under construction',
     state: "",
+    display: "solo",
     web3: new Web3(),
     user: {
     	address: ""

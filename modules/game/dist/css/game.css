@@ -1,0 +1,30 @@
+#app.solo {
+	width:500px;
+	height:auto;
+	position:fixed;
+	top:50%;
+	left:50%;
+	transform:translate(-50%,-50%);
+	text-align:center;
+	background:rgba(0,0,0,0.2);
+	color:#fafafa;
+	padding:32px;
+}
+
+html, body {
+	margin:0;
+	padding:0;
+	background:#333333;
+}
+
+#app.solo button {
+	width:200px;
+	padding:16px 32px;
+	display:inline-block;
+	margin-top:32px;
+	border:none; outline:none;
+	border:2px solid #fafafa;
+	cursor:pointer;
+	background:none;
+	color:#fafafa;
+}

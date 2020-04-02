@@ -1,7 +1,10 @@
 <html>
-	<head></head>
+	<head>
+		<link rel="stylesheet" type="text/css" href="/css/reset.css">
+		<link rel="stylesheet" type="text/css" href="/css/game.css">
+	</head>
 	<body>
-		<div id="app">
+		<div id="app" v-bind:class="{[display]:true}">
 			<div v-if="state == 'loading'">
 				<h1>
 					Loading...
