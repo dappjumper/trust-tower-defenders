@@ -60,3 +60,26 @@ h1 {
 #app.solo {
 	opacity:1;
 }
+
+button.danger {
+	border-color:red!important;
+	color:red!important;
+}
+
+button:hover {
+	background:#fafafa!important;
+	color:#333333!important;
+}
+
+button.danger:hover {
+	background:red!important;
+	color:#fafafa!important;
+}
+
+.todo {
+	pointer-events:none!important; opacity:0.1!important;
+}
+
+.error {
+	display:block;
+}

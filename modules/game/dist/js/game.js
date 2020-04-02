@@ -33,6 +33,13 @@ var app = new Vue({
     setError: function(string){
       this.error = string
     },
+    beginLogin: function(strategy) {
+      switch(strategy) {
+        case 'local':
+
+        break;
+      }
+    },
     deleteWallet: function(){
       localStorage.setItem('ttd_enc_wallet', null)
       this.state = "initial"
@@ -50,6 +57,19 @@ var app = new Vue({
       if(!pass) return this.setError('Please enter password')
       this.state = "loading"
       this.status = "Decoding wallet..."
+      setTimeout(function(){
+        try {
+          this.user = this.web3.eth.accounts.decrypt(this.user, pass);
+          this.state = ""
+          this.status = "Contacting server..."
+          setTimeout(function(){
+            this.state = "loading"
+          }.bind(this),1)
+        } catch(e){
+          this.state = "decryptWallet"
+          return this.error = "Incorrect password, please try again."
+        }
+      }.bind(this),1)
     },
     encryptWallet: function(){
       let pass = document.querySelector('#encryptPassword').value
@@ -60,7 +80,8 @@ var app = new Vue({
       this.state = "loading"
       this.status = "Encrypting your password"
       setTimeout(function(){
-        localStorage.setItem('ttd_enc_wallet',JSON.stringify(this.user.encrypt(pass)));
+        localStorage.setItem('ttd_enc_wallet', JSON.stringify(this.web3.eth.accounts.encrypt(this.user.privateKey, pass)))
+        this.beginLogin('local')
       }.bind(this),1)
     }
   }

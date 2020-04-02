@@ -16,7 +16,7 @@
 					</p>
 				</div>
 				<div v-if="state == 'decryptWallet'">
-					<h1>Please enter your wallet password</h1>
+					<h1>Please enter your password</h1>
 					<p>Your address is 0x{{user.address}}</p>
 					<input id="decryptPassword" placeholder="Type a password" type="password"/>
 					<span class="error">{{error}}</span>
@@ -24,7 +24,7 @@
 					<button class="danger" v-on:click="deleteWallet">Forget</button>
 				</div>
 				<div  v-if="state == 'encryptNewWallet'">
-					<h1>Please choose a password for safety reasons</h1>
+					<h1>It's not safe to go without a password!</h1>
 					<p>Your address will be {{user.address}}</p>
 					<input id="encryptPassword" placeholder="Type a password" type="password"/>
 					<input id="encryptPasswordVerify" placeholder="Re-type the password" type="password"/>
@@ -35,8 +35,8 @@
 				<div v-if="state == 'initial'">
 					<h1>Welcome to TTD!</h1>
 					<button v-on:click="createWallet">Register with new local wallet</button>
-					<button>Login via local wallet file</button>
-					<button>Register or login via metamask</button>
+					<button class="todo">Login via local wallet file</button>
+					<button class="todo">Register or login via metamask</button>
 				</div>
 			</div>
 		</div>

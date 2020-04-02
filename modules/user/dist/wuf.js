@@ -74,7 +74,7 @@ wuf.apicall = {
 	}
 }
 
-wuf.api = (endpoint, publicKey, payload)=>{
+wuf.api = (endpoint, payload)=>{
 	return new Promise((resolve, reject)=>{
 		let xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function () {
@@ -88,7 +88,6 @@ wuf.api = (endpoint, publicKey, payload)=>{
 		    }
 		};
 		xhttp.open((payload ? 'POST' : 'GET'), wuf.host+wuf.url+endpoint, true);
-		if(publicKey) xhttp.setRequestHeader('publicKey', publicKey);
 		try {
             let jwt = wuf.getJWT();
             if(jwt.token) xhttp.setRequestHeader('Authorization', "Bearer "+wuf.getJWT().token);
