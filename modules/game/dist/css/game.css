@@ -1,20 +1,34 @@
 #app.solo {
-	width:500px;
-	height:auto;
-	position:fixed;
-	top:50%;
-	left:50%;
-	transform:translate(-50%,-50%);
+	width:666px;
+	height:666px;
+	box-sizing:border-box;
 	text-align:center;
 	background:rgba(0,0,0,0.2);
 	color:#fafafa;
 	padding:32px;
 }
 
+#app.solo .content {
+	position:absolute;
+	top:50%;
+	left:50%;
+	transform: translate(-50%,-50%);
+}
+
 html, body {
 	margin:0;
 	padding:0;
 	background:#333333;
+}
+
+p {
+	margin:32px 0;
+}
+
+input {
+	display:block;
+	padding:8px 16px;
+	margin:16px auto;
 }
 
 #app.solo button {
@@ -27,4 +41,22 @@ html, body {
 	cursor:pointer;
 	background:none;
 	color:#fafafa;
+}
+
+h1 {
+	font-size:32px;
+}
+
+#app {
+	opacity:0;
+	transition:all .1s;
+	position:fixed;
+	top:50%;
+	left:50%;
+	border-radius:333px;
+	transform:translate(-50%,-50%);
+}
+
+#app.solo {
+	opacity:1;
 }

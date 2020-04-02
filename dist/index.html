@@ -1,30 +1,33 @@
 <html>
 	<head>
+		<link rel="stylesheet" type="text/css" href="https://raw.githubusercontent.com/daneden/animate.css/master/animate.css">
 		<link rel="stylesheet" type="text/css" href="/css/reset.css">
 		<link rel="stylesheet" type="text/css" href="/css/game.css">
 	</head>
 	<body>
 		<div id="app" v-bind:class="{[display]:true}">
-			<div v-if="state == 'loading'">
-				<h1>
-					Loading...
-				</h1>
-				<p>
-					{{status}}
-				</p>
-			</div>
-			<div v-if="state == 'encryptNewWallet'">
-				<h1>Please choose a password for safety reasons</h1>
-				<p>Your address will be {{user.address}}</p>
-				<input id="encodePassword" type="password"/>
-				<input id="encodePassword_verify" type="password"/>
-				<button>Register</button>
-			</div>
-			<div v-if="state == 'initial'">
-				<h1>Welcome to TTD!</h1>
-				<button v-on:click="createWallet">Register with new local wallet</button>
-				<button>Login via local wallet file</button>
-				<button>Register or login via metamask</button>
+			<div class="content">
+				<div v-if="state == 'loading'">
+					<h1>
+						Loading...
+					</h1>
+					<p>
+						{{status}}
+					</p>
+				</div>
+				<div  v-if="state == 'encryptNewWallet'">
+					<h1>Please choose a password for safety reasons</h1>
+					<p>Your address will be {{user.address}}</p>
+					<input id="encodePassword" placeholder="Type a password" type="password"/>
+					<input id="encodePassword_verify" placeholder="Re-type the password" type="password"/>
+					<button>Register</button>
+				</div>
+				<div v-if="state == 'initial'">
+					<h1>Welcome to TTD!</h1>
+					<button v-on:click="createWallet">Register with new local wallet</button>
+					<button>Login via local wallet file</button>
+					<button>Register or login via metamask</button>
+				</div>
 			</div>
 		</div>
 	<script type="text/javascript" src="/js/web3.js"></script>

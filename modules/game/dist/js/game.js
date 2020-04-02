@@ -3,7 +3,7 @@ var app = new Vue({
   data: {
     message: 'Under construction',
     state: "",
-    display: "solo",
+    display: "",
     web3: new Web3(),
     user: {
     	address: ""
@@ -12,12 +12,15 @@ var app = new Vue({
   mounted: function(){
   	console.log(wuf)
   	let jwt = wuf.getJWT()
-  	if(jwt) {
-  		//User has login token..
-  	} else {
-  		//User does not have login token...
-  		this.onNotLoggedIn()
-  	}
+    setTimeout(function(){
+      this.display = "solo";
+    	if(jwt) {
+    		//User has login token..
+    	} else {
+    		//User does not have login token...
+    		this.onNotLoggedIn()
+    	}
+    }.bind(this),1)
   },
   methods: {
   	onNotLoggedIn: function(){
