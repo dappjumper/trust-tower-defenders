@@ -15,12 +15,22 @@
 						{{status}}
 					</p>
 				</div>
+				<div v-if="state == 'decryptWallet'">
+					<h1>Please enter your wallet password</h1>
+					<p>Your address is 0x{{user.address}}</p>
+					<input id="decryptPassword" placeholder="Type a password" type="password"/>
+					<span class="error">{{error}}</span>
+					<button v-on:click="decryptWallet">Unlock</button>
+					<button class="danger" v-on:click="deleteWallet">Forget</button>
+				</div>
 				<div  v-if="state == 'encryptNewWallet'">
 					<h1>Please choose a password for safety reasons</h1>
 					<p>Your address will be {{user.address}}</p>
-					<input id="encodePassword" placeholder="Type a password" type="password"/>
-					<input id="encodePassword_verify" placeholder="Re-type the password" type="password"/>
-					<button>Register</button>
+					<input id="encryptPassword" placeholder="Type a password" type="password"/>
+					<input id="encryptPasswordVerify" placeholder="Re-type the password" type="password"/>
+					<span class="error">{{error}}</span>
+					<button v-on:click="encryptWallet">Register</button>
+					<button v-on:click="deleteWallet">Back</button>
 				</div>
 				<div v-if="state == 'initial'">
 					<h1>Welcome to TTD!</h1>
@@ -36,3 +46,7 @@
 	<script type="text/javascript" src="/js/game.js"></script>
 	</body>
 </html>
+
+<style>
+	.error {color:red;}
+</style>
