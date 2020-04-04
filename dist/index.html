@@ -7,6 +7,10 @@
 	<body>
 		<div id="app" v-bind:class="{[display]:true}">
 			<div class="content">
+				<div v-if="state == 'dashboard'">
+					<p>You have logged in as {{user.address}}</p>
+					<button v-on:click="logout">Log out</button>
+				</div>
 				<div v-if="state == 'loading'">
 					<h1>
 						Loading...

@@ -9,15 +9,16 @@ var app = new Vue({
     user: {
     	address: ""
     },
+    strategy: "local",
     error: ""
   },
   mounted: function(){
-  	console.log(wuf)
   	let jwt = wuf.getJWT()
     setTimeout(function(){
       this.display = "solo";
     	if(jwt) {
     		//User has login token..
+        this.useJWT()
     	} else {
     		//User does not have login token...
     	  let memoryWallet = localStorage.getItem('ttd_enc_wallet')
@@ -26,11 +27,16 @@ var app = new Vue({
         } else {
           this.user = JSON.parse(memoryWallet)
           this.state = "decryptWallet"
+          this.strategy = "local"
         }
     	}
     }.bind(this),1)
   },
   methods: {
+    useJWT: function(){
+      this.user = wuf.getJWT()
+      this.state = "dashboard"
+    },
     setError: function(string){
       this.error = string
     },
@@ -38,11 +44,42 @@ var app = new Vue({
       this.state = ""
       this.state = "loading"
       this.status = "Contacting server..."
+      if(this.user.address.indexOf('0x') == -1) this.user.address = '0x' + this.user.address
+      wuf.api('user/'+this.user.address)
+        .then((res)=>{
+          this.signChallenge(this.strategy, res)
+        })
+        .catch((res)=>{
+          this.state = "loading"
+          this.status = "Failed..."
+        })
     },
-    beginLogin: function(strategy) {
+    signChallenge: function(strategy, object) {
       switch(strategy) {
         case 'local':
-
+          this.state = ""
+          this.state = "loading"
+          this.status = "Signing..."
+          setTimeout(function(){
+            let signature = this.web3.eth.accounts.sign(object.challenge, this.user.privateKey)
+            this.state = ""
+            this.state = "loading"
+            this.status = "Sending signature to server..."
+            wuf.api('user/'+this.user.address+'/getjwt', {
+              signature: signature.signature
+            })
+              .then((res)=>{
+                if(res.token) {
+                  wuf.setJWT(res)
+                  this.useJWT()
+                } else {
+                  //TODO ERROR HANDLE
+                }
+              })
+              .catch((res)=>{
+                //TODO ERROR HANDLE
+              })
+          }.bind(this),1)
         break;
       }
     },
@@ -51,6 +88,10 @@ var app = new Vue({
       this.state = "initial"
       this.error = ""
       this.status = ""
+    },
+    logout: function(){
+      wuf.setJWT(null)
+      this.state = "decryptWallet"
     },
   	createWallet: function(){
   		this.state = "loading"
@@ -63,8 +104,12 @@ var app = new Vue({
       this.status = "Decrypting..."
       return new Promise(function(resolve, reject){
         setTimeout(function(){
-          let res = this.web3.eth.accounts.decrypt(user, password)
-          resolve(res)
+          try {
+            let res = this.web3.eth.accounts.decrypt(user, password)
+            resolve(res)
+          } catch(e){
+            reject()
+          }
         }.bind(this),1)
       }.bind(this))
     },
@@ -83,9 +128,10 @@ var app = new Vue({
       if(!pass) return this.setError('Please enter password')
       this.state = "loading"
       this.status = "Decoding wallet..."
-      this.decryptV3(this.user, pass)
+      this.decryptV3(JSON.parse(localStorage.getItem('ttd_enc_wallet')), pass)
         .then((decrypted)=>{
-           this.getChallenge(decrypted)
+          this.user = decrypted
+          this.getChallenge(decrypted)
         })
         .catch(()=>{
           this.state = "decryptWallet"
