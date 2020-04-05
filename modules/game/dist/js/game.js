@@ -36,6 +36,7 @@ var app = new Vue({
     useJWT: function(){
       this.user = wuf.getJWT()
       this.state = "dashboard"
+      this.display = "full"
     },
     setError: function(string){
       this.error = string
@@ -92,6 +93,7 @@ var app = new Vue({
     logout: function(){
       wuf.setJWT(null)
       this.state = "decryptWallet"
+      this.display = "solo"
     },
   	createWallet: function(){
   		this.state = "loading"
