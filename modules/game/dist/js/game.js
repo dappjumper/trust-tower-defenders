@@ -41,7 +41,7 @@ var app = new Vue({
   filters: {
     timeSince: (value)=>{
       let hour = Math.floor(( new Date().getTime() - new Date(value).getTime() ) / 1000 / 60 / 60)
-      return hour + ' hour' + (hour > 1 ? 's' : '')
+      return (hour > 0 ? hour : 0) + ' hour' + (hour > 1 ? 's' : hour > 0 ? '' : 's')
     }
   },
   methods: {
