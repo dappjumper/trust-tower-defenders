@@ -9,8 +9,10 @@
 			<div class="content">
 				<transition name="blobSwitch">
 					<div v-if="state == 'dashboard'">
-						<p>You have logged in as {{user.address}}</p>
-						<button v-on:click="logout">Log out</button>
+						<header>
+							<p>You have logged in as {{user.address}}</p>
+							<button style="float:right" v-on:click="logout">Log out</button>
+						</header>
 					</div>
 				</transition>
 				<transition name="blobSwitch">
@@ -27,7 +29,7 @@
 					<div v-if="state == 'decryptWallet'">
 						<h1>Please enter your password</h1>
 						<p>Your address is 0x{{user.address}}</p>
-						<input id="decryptPassword" placeholder="Type a password" type="password"/>
+						<input v-on:keyup.enter="decryptWallet" id="decryptPassword" placeholder="Type a password" type="password"/>
 						<span class="error">{{error}}</span>
 						<button v-on:click="decryptWallet">Unlock</button>
 						<button class="danger" v-on:click="deleteWallet">Forget</button>
@@ -37,8 +39,8 @@
 					<div  v-if="state == 'encryptNewWallet'">
 						<h1>It's not safe to go without a password!</h1>
 						<p>Your address will be {{user.address}}</p>
-						<input id="encryptPassword" placeholder="Type a password" type="password"/>
-						<input id="encryptPasswordVerify" placeholder="Re-type the password" type="password"/>
+						<input v-on:keyup.enter="encryptWallet" id="encryptPassword" placeholder="Type a password" type="password"/>
+						<input v-on:keyup.enter="encryptWallet" id="encryptPasswordVerify" placeholder="Re-type the password" type="password"/>
 						<span class="error">{{error}}</span>
 						<button v-on:click="encryptWallet">Register</button>
 						<button v-on:click="deleteWallet">Back</button>
