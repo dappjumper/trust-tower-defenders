@@ -10,7 +10,13 @@ var app = new Vue({
     	address: ""
     },
     strategy: "local",
-    error: ""
+    error: "",
+    me: {
+      created: null,
+      nonce: null,
+      _id: null,
+      address: null
+    }
   },
   mounted: function(){
   	let jwt = wuf.getJWT()
@@ -32,11 +38,33 @@ var app = new Vue({
     	}
     }.bind(this),1)
   },
+  filters: {
+    timeSince: (value)=>{
+      let hour = Math.floor(( new Date().getTime() - new Date(value).getTime() ) / 1000 / 60 / 60)
+      return hour + ' hour' + (hour > 1 ? 's' : '')
+    }
+  },
   methods: {
     useJWT: function(){
       this.user = wuf.getJWT()
-      this.state = "dashboard"
-      this.display = "full"
+      this.state = ""
+      this.status = "Getting profile information..."
+      this.state = "loading"
+      wuf.origUrl = wuf.url;
+      wuf.url = "/api/"
+      wuf.api('me')
+        .then(function(result){
+          this.state = ""
+          this.state = "dashboard"
+          this.display = "full"
+          this.me = result.user
+          console.log(this.me)
+        }.bind(this))
+        .catch(function(){
+          this.state = ""
+          this.status = "Could not load profile..."
+          this.state = "loading"
+        }.bind(this))
     },
     setError: function(string){
       this.error = string
@@ -93,6 +121,7 @@ var app = new Vue({
     logout: function(){
       wuf.setJWT(null)
       this.state = "decryptWallet"
+      wuf.url = wuf.origUrl;
       this.display = "solo"
     },
   	createWallet: function(){

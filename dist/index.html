@@ -10,7 +10,7 @@
 				<transition name="blobSwitch">
 					<div v-if="state == 'dashboard'">
 						<header>
-							<p>You have logged in as {{user.address}}</p>
+							<p>You have logged in as {{me.address}}<br/>Age: {{me.created | timeSince}}</p>
 							<button style="float:right" v-on:click="logout">Log out</button>
 						</header>
 					</div>

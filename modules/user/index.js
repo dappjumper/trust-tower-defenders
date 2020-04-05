@@ -61,7 +61,9 @@ const middleware = {
 	protected: protected
 }
 
-const routes = {
+var game = require('./game')
+
+var routes = {
 	'/wuf/dist/:static/:sub?/:sub2?/:sub3?': {
 		method: "get",
 		function: (req,res)=>{
@@ -184,6 +186,9 @@ function _Web3UserFlow(options,app){
 		log('Loading middleware: '+prop)
 		wuf[prop] = middleware[prop].bind(wuf);
 	}
+	app.User = User
+	game = game(app)
+	routes = {...routes, ...game.routes}
 
 	if(wuf.app) for(var prop in routes) {
 		let route = routes[prop];
