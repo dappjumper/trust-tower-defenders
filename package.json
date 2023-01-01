@@ -22,6 +22,6 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.8.11",
     "socket.io": "^2.3.0",
-    "webpack": "^4.42.0"
+    "webpack": "^5.75.0"
   }
 }
